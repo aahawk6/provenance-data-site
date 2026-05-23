@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Provenance Data — Food & Beverage AI Annotation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #EDE5D0;
+  --cream-dark: #E0D5BC;
+  --cream-deeper: #D4C8A8;
+  --parchment: #F5EFE0;
+  --forest: #1E3828;
+  --forest-mid: #2C5238;
+  --forest-light: #4A7A58;
+  --forest-pale: #DAE8DE;
+  --ink: #141410;
+  --ink-mid: #2A2A22;
+  --ink-muted: #524F42;
+  --ink-faint: #8A8878;
+  --border: rgba(44,74,53,0.20);
+  --border-mid: rgba(44,74,53,0.35);
+  --serif: 'DM Serif Display', Georgia, serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+  --radius: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--parchment);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  color: var(--ink);
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.5;
+}
+
+/* ── Nav ── */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 48px;
+  border-bottom: 0.5px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: #1A1A14;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 100;
+  border-bottom: 0.5px solid rgba(255,255,255,0.07);
+}
+.nav-logo {
+  font-family: var(--serif);
+  font-size: 18px;
+  color: #F5EFE6;
+  letter-spacing: -0.01em;
+}
+.nav-logo em {
+  font-style: italic;
+  color: rgba(245,239,230,0.4);
+  font-size: 13px;
+  font-family: var(--sans);
+  margin-left: 10px;
+  font-weight: 300;
+}
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-links a {
+  font-size: 13px;
+  color: rgba(245,239,230,0.55);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: #F5EFE6; }
+.nav-cta {
+  background: var(--forest);
+  color: #fff !important;
+  padding: 8px 20px;
+  border-radius: 40px;
+  font-size: 13px !important;
+  font-weight: 500;
+  transition: background 0.2s, transform 0.15s !important;
+}
+.nav-cta:hover { background: var(--forest-mid) !important; transform: translateY(-1px); }
+
+/* ── Hero ── */
+.hero {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 88px 48px 72px;
+  text-align: center;
+}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--forest-light);
+  background: var(--forest-pale);
+  border: 0.5px solid rgba(44,74,53,0.18);
+  padding: 6px 14px;
+  border-radius: 40px;
+  margin-bottom: 32px;
+}
+.hero-eyebrow::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--forest-light);
+  flex-shrink: 0;
+}
+.hero h1 {
+  font-family: var(--serif);
+  font-size: 52px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 24px;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--forest);
+}
+.hero-sub {
+  font-size: 17px;
+  color: var(--ink-muted);
+  max-width: 560px;
+  margin: 0 auto 40px;
+  line-height: 1.8;
+  font-weight: 300;
+}
+.hero-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 44px;
+}
+.hero-pill {
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 40px;
+  border: 0.5px solid var(--border-mid);
+  color: var(--ink-muted);
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hero-pill svg { width: 12px; height: 12px; color: var(--forest-light); flex-shrink: 0; }
+.hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--forest);
+  color: #fff;
+  padding: 13px 28px;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+  font-family: var(--sans);
+}
+.btn-primary:hover { background: var(--forest-mid); transform: translateY(-1px); }
+.btn-secondary {
+  background: transparent;
+  color: var(--ink-mid);
+  padding: 13px 28px;
+  border-radius: 40px;
+  font-size: 14px;
+  border: 0.5px solid var(--border-mid);
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+  font-family: var(--sans);
+}
+.btn-secondary:hover { background: var(--cream); border-color: var(--forest-light); }
+
+/* ── Divider ── */
+.wave-divider {
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+.section-rule {
+  max-width: 900px;
+  margin: 0 auto;
+  border: none;
+  border-top: 0.5px solid var(--border);
+}
+
+/* ── Section wrapper ── */
+.section { padding: 72px 48px; max-width: 900px; margin: 0 auto; }
+.section-sm { padding: 56px 48px; max-width: 900px; margin: 0 auto; }
+
+.section-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--forest-light);
+  margin-bottom: 10px;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: 32px;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+.section-body {
+  font-size: 15px;
+  color: var(--ink-muted);
+  max-width: 520px;
+  line-height: 1.8;
+  font-weight: 300;
+  margin-bottom: 40px;
+}
+
+/* ── Services ── */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.service-card {
+  background: var(--cream);
+  border: 0.5px solid var(--border-mid);
+  border-radius: var(--radius-xl);
+  padding: 28px 24px;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.service-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(44,74,53,0.08);
+}
+.service-tier {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--forest-light);
+  background: var(--forest-pale);
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 40px;
+  margin-bottom: 20px;
+}
+.service-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--forest-pale);
+  border: 0.5px solid rgba(44,74,53,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.service-icon svg { width: 18px; height: 18px; color: var(--forest); }
+.service-title {
+  font-family: var(--serif);
+  font-size: 19px;
+  color: var(--ink);
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
+}
+.service-desc {
+  font-size: 13px;
+  color: var(--ink-muted);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* ── Why grid ── */
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+  border: 0.5px solid var(--border-mid);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--border-mid);
+}
+.why-item {
+  background: var(--parchment);
+  padding: 28px 28px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.why-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--cream);
+  border: 0.5px solid var(--border-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.why-icon svg { width: 17px; height: 17px; color: var(--forest); }
+.why-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 5px;
+}
+.why-body {
+  font-size: 13px;
+  color: var(--ink-muted);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* ── Verticals ── */
+.verticals-strip {
+  background: var(--cream-dark);
+  border-top: 0.5px solid var(--border-mid);
+  border-bottom: 0.5px solid var(--border-mid);
+  padding: 36px 48px;
+}
+.verticals-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.verticals-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  flex-shrink: 0;
+  min-width: 100px;
+}
+.verticals-list { display: flex; gap: 10px; flex-wrap: wrap; }
+.vert-chip {
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: 40px;
+  border: 0.5px solid var(--border-mid);
+  color: var(--ink-muted);
+  background: var(--parchment);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.vert-chip svg { width: 13px; height: 13px; }
+.vert-chip-active {
+  background: var(--forest);
+  color: rgba(255,255,255,0.9);
+  border-color: var(--forest);
+}
+.vert-chip-active svg { color: rgba(255,255,255,0.7); }
+.vert-active-badge {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.18);
+  padding: 1px 6px;
+  border-radius: 40px;
+  margin-left: 2px;
+}
+
+/* ── Contact section ── */
+.contact-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 48px;
+  align-items: start;
+}
+.contact-left {}
+.contact-left .section-title { margin-bottom: 14px; }
+.contact-left .section-body { margin-bottom: 28px; }
+.contact-detail {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.contact-detail-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--cream);
+  border: 0.5px solid var(--border-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.contact-detail-icon svg { width: 15px; height: 15px; color: var(--forest); }
+.contact-detail-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+.contact-detail-body { font-size: 12px; color: var(--ink-muted); font-weight: 300; line-height: 1.6; }
+
+.form-card {
+  background: var(--cream);
+  border: 0.5px solid var(--border-mid);
+  border-radius: var(--radius-xl);
+  padding: 32px 28px;
+}
+.form-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.form-sub {
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin-bottom: 24px;
+  font-weight: 300;
+  line-height: 1.65;
+}
+.field { margin-bottom: 14px; }
+.field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 13px;
+  background: var(--parchment);
+  border: 0.5px solid var(--border-mid);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.field input::placeholder,
+.field textarea::placeholder { color: var(--ink-faint); }
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--forest-light);
+  box-shadow: 0 0 0 3px rgba(44,74,53,0.08);
+}
+.field textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B6A5E' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; cursor: pointer; }
+.btn-submit {
+  width: 100%;
+  background: var(--forest);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 13px;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s, transform 0.15s;
+  letter-spacing: 0.01em;
+}
+.btn-submit:hover { background: var(--forest-mid); transform: translateY(-1px); }
+.form-note {
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+/* ── Audit strip ── */
+.audit-strip {
+  background: var(--cream-dark);
+  border: 0.5px solid var(--border-mid);
+  border-radius: var(--radius-xl);
+  padding: 28px 28px;
+  margin-top: 16px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.audit-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--forest-pale);
+  border: 0.5px solid rgba(44,74,53,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.audit-dot svg { width: 18px; height: 18px; color: var(--forest); }
+.audit-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 5px; }
+.audit-body { font-size: 13px; color: var(--ink-muted); font-weight: 300; line-height: 1.65; }
+.audit-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.audit-tag {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 40px;
+  background: var(--parchment);
+  border: 0.5px solid var(--border-mid);
+  color: var(--ink-muted);
+}
+
+/* ── Footer ── */
+.footer {
+  background: var(--ink);
+  color: rgba(255,255,255,0.5);
+  padding: 40px 48px;
+  margin-top: 80px;
+}
+.footer-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.footer-logo {
+  font-family: var(--serif);
+  font-size: 18px;
+  color: rgba(255,255,255,0.85);
+}
+.footer-tagline { font-size: 12px; font-weight: 300; }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-eyebrow { animation: fadeUp 0.5s ease both; }
+.hero h1 { animation: fadeUp 0.55s ease 0.08s both; }
+.hero-sub { animation: fadeUp 0.55s ease 0.16s both; }
+.hero-pills { animation: fadeUp 0.55s ease 0.22s both; }
+.hero-actions { animation: fadeUp 0.55s ease 0.28s both; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .nav { padding: 18px 24px; }
+  .nav-links { display: none; }
+  .hero { padding: 60px 24px 52px; }
+  .hero h1 { font-size: 36px; }
+  .section, .section-sm { padding: 52px 24px; }
+  .services-grid { grid-template-columns: 1fr; }
+  .why-grid { grid-template-columns: 1fr; }
+  .contact-wrap { grid-template-columns: 1fr; gap: 32px; }
+  .verticals-strip { padding: 28px 24px; }
+  .footer { padding: 32px 24px; }
+  .field-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-logo">Provenance Data <em></em></div>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#why">Why us</a>
+    <a href="#contact" class="nav-cta">Get in touch</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-eyebrow">Food &amp; beverage · Visual QC · AI annotation</div>
+  <h1>Training data built for <em>food &amp; beverage</em> visual inspection AI</h1>
+  <p class="hero-sub">We produce high-quality annotated datasets for computer vision models that inspect packaging, fill levels, closures, and surface defects — starting with beverage and packaging lines.</p>
+  <div class="hero-pills">
+    <span class="hero-pill">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      Beverage &amp; packaging specialist
+    </span>
+    <span class="hero-pill">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      Defect taxonomy development included
+    </span>
+    <span class="hero-pill">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      Pilot-first engagements
+    </span>
+    <span class="hero-pill">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      QA-verified output
+    </span>
+  </div>
+  <div class="hero-actions">
+    <a href="#contact" class="btn-primary">Get in touch</a>
+    <a href="#services" class="btn-secondary">See what we do</a>
+  </div>
+</section>
+
+<!-- Verticals strip -->
+<div class="verticals-strip">
+  <div class="verticals-inner">
+    <div class="verticals-label">Focus verticals</div>
+    <div class="verticals-list">
+      <div class="vert-chip vert-chip-active">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2h8l1 6H7L8 2z"/><path d="M7 8c0 8 2 12 5 12s5-4 5-12"/></svg>
+        Beverage &amp; packaging
+        <span class="vert-active-badge">Active</span>
+      </div>
+      <div class="vert-chip">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        Protein &amp; fresh food
+      </div>
+      <div class="vert-chip">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+        Dairy &amp; cold chain
+      </div>
+      <div class="vert-chip">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        Canned &amp; dry goods
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Services -->
+<section class="section" id="services">
+  <div class="section-eyebrow">What we do</div>
+  <h2 class="section-title">Three ways we can help your team</h2>
+  <p class="section-body">We work across the full data lifecycle — from raw image annotation through to production-ready dataset products. Most engagements start at Tier 1 and grow from there.</p>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-tier">Tier 1</div>
+      <div class="service-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      </div>
+      <div class="service-title">Dataset annotation</div>
+      <div class="service-desc">Bounding box, polygon, and classification annotation for packaging defect detection models. Fast turnaround, multi-pass QA, inter-annotator agreement metrics on every batch.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-tier">Tier 2</div>
+      <div class="service-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      </div>
+      <div class="service-title">Dataset curation</div>
+      <div class="service-desc">Audit and improve existing labeled datasets — coverage gaps, consistency errors, taxonomy alignment, and edge case identification. Written report included.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-tier">Tier 3</div>
+      <div class="service-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      </div>
+      <div class="service-title">Dataset products</div>
+      <div class="service-desc">Pre-labeled, ready-to-train datasets for specific defect classes in beverage and packaging — available for direct licensing. No annotation project required.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- Why -->
+<section class="section" id="why">
+  <div class="section-eyebrow">Why it matters</div>
+  <h2 class="section-title">Domain knowledge is the difference</h2>
+  <p class="section-body">Generic annotation services produce generic results. Food and beverage QC has specific tolerances, defect classes, and edge cases that generalist annotators consistently miss.</p>
+  <div class="why-grid">
+    <div class="why-item">
+      <div class="why-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      </div>
+      <div>
+        <div class="why-title">Domain-specific annotators</div>
+        <div class="why-body">Screened and trained on food and beverage QC standards — not generic image labeling. Every annotator passes a defect recognition assessment before working on client data.</div>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <div>
+        <div class="why-title">Taxonomy development included</div>
+        <div class="why-body">We build and document the defect taxonomy before annotation begins — so your model learns what you actually mean by a defect, not a loose approximation.</div>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div>
+        <div class="why-title">QA-verified output</div>
+        <div class="why-body">Multi-pass quality review on every batch. Inter-annotator agreement metrics provided with each delivery. You see the numbers, not just the labels.</div>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      </div>
+      <div>
+        <div class="why-title">Pilot-first approach</div>
+        <div class="why-body">Start with a bounded pilot before committing to a full engagement. Clear deliverables, fixed timeline, defined acceptance criteria. No surprises.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- Contact -->
+<section class="section" id="contact">
+  <div class="contact-wrap">
+    <div class="contact-left">
+      <div class="section-eyebrow">Get in touch</div>
+      <h2 class="section-title">Let's talk about your data</h2>
+      <p class="section-body">Tell us what you're building and we'll follow up within one business day. Early stage or mature pipeline — both are welcome.</p>
+
+      <div class="contact-detail">
+        <div class="contact-detail-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 5.81 5.81l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div>
+          <div class="contact-detail-title">Response time</div>
+          <div class="contact-detail-body">Within one business day. No sales pressure — if we're not the right fit, we'll tell you.</div>
+        </div>
+      </div>
+
+      <div class="contact-detail">
+        <div class="contact-detail-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div>
+          <div class="contact-detail-title">Pilot timeline</div>
+          <div class="contact-detail-body">Most pilots are scoped to 2–4 weeks. We define deliverables and acceptance criteria together before starting.</div>
+        </div>
+      </div>
+
+      <div class="contact-detail">
+        <div class="contact-detail-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div class="contact-detail-title">Who reaches out</div>
+          <div class="contact-detail-body">Heads of ML, data leads, and founding teams at AI companies building visual inspection products.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-right">
+      <div class="form-card">
+        <div class="form-title">Start a conversation</div>
+        <div class="form-sub">We read every message and respond personally.</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">First name</label>
+            <input type="text" placeholder="Alex">
+          </div>
+          <div class="field">
+            <label class="field-label">Last name</label>
+            <input type="text" placeholder="Chen">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Work email</label>
+          <input type="email" placeholder="alex@company.com">
+        </div>
+
+        <div class="field">
+          <label class="field-label">Company</label>
+          <input type="text" placeholder="Company name">
+        </div>
+
+        <div class="field">
+          <label class="field-label">What best describes your situation?</label>
+          <select>
+            <option value="">Select one…</option>
+            <option>Building a new visual inspection model — need labeled data</option>
+            <option>Existing dataset — want a quality audit</option>
+            <option>Existing model — want to improve training data</option>
+            <option>Evaluating annotation vendors</option>
+            <option>Something else</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Tell us more</label>
+          <textarea placeholder="What product category? What defect classes matter most? Any timeline or volume in mind?"></textarea>
+        </div>
+
+        <button class="btn-submit">Send message</button>
+        <p class="form-note">We respond within one business day.</p>
+      </div>
+
+      <div class="audit-strip">
+        <div class="audit-dot">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div>
+          <div class="audit-title">Free dataset quality audit for qualified teams</div>
+          <div class="audit-body">Have an existing labeled dataset? We'll review it and return a written report within 5–7 business days — no commitment required.</div>
+          <div class="audit-tags">
+            <span class="audit-tag">Coverage gaps</span>
+            <span class="audit-tag">Consistency</span>
+            <span class="audit-tag">Taxonomy alignment</span>
+            <span class="audit-tag">Edge cases</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">Provenance Data</div>
+    <div class="footer-tagline">Food &amp; beverage visual inspection annotation · Pilot engagements welcome</div>
+  </div>
+</footer>
+
+</body>
+</html>
